@@ -9,8 +9,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"syscall"
-	"time"
-
 	"github.com/timakin/dratini/dratini"
 )
 
@@ -161,17 +159,17 @@ func main() {
 	//}
 
 	// Start a goroutine to log number of job queue.
-	go func() {
-		for {
-			queue := len(dratini.QueueNotification)
-			if queue == 0 {
-				break
-			}
-
-			dratini.LogError.Info(fmt.Sprintf("wait until queue is empty. Current queue len: %d", queue))
-			time.Sleep(1 * time.Second)
-		}
-	}()
+	//go func() {
+	//	for {
+	//		queue := len(dratini.QueueNotification)
+	//		if queue == 0 {
+	//			break
+	//		}
+	//
+	//		dratini.LogError.Info(fmt.Sprintf("wait until queue is empty. Current queue len: %d", queue))
+	//		time.Sleep(1 * time.Second)
+	//	}
+	//}()
 
 	// Block until all pusher worker job is done.
 	dratini.PusherWg.Wait()
