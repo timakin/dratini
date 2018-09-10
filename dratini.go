@@ -1,11 +1,9 @@
 package dratini
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"io/ioutil"
-	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -130,34 +128,37 @@ func main() {
 	dratini.InitStat()
 	dratini.StartPushWorkers(dratini.ConfDratini.Core.WorkerNum, dratini.ConfDratini.Core.QueueNum)
 
-	mux := http.NewServeMux()
-	dratini.RegisterHandlers(mux)
+	// Start PushJob
+	// <- job started
 
-	server := &http.Server{
-		Handler: mux,
-	}
-	go func() {
-		dratini.LogError.Info("start server")
-		if err := dratini.RunServer(server, &dratini.ConfDratini); err != nil {
-			dratini.LogError.Info(fmt.Sprintf("failed to serve: %s", err))
-		}
-	}()
+	//mux := http.NewServeMux()
+	//dratini.RegisterHandlers(mux)
+
+	//server := &http.Server{
+	//	Handler: mux,
+	//}
+	//go func() {
+	//	dratini.LogError.Info("start server")
+	//	if err := dratini.RunServer(server, &dratini.ConfDratini); err != nil {
+	//		dratini.LogError.Info(fmt.Sprintf("failed to serve: %s", err))
+	//	}
+	//}()
 
 	// Graceful shutdown (kicked by SIGTERM).
 	//
 	// First, it shutdowns server and stops accepting new requests.
 	// Then wait until all remaining queues in buffer are flushed.
-	sigTERMChan := make(chan os.Signal, 1)
-	signal.Notify(sigTERMChan, syscall.SIGTERM)
-
-	<-sigTERMChan
-	dratini.LogError.Info("shutdown server")
-	timeout := time.Duration(conf.Core.ShutdownTimeout) * time.Second
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-	if err := server.Shutdown(ctx); err != nil {
-		dratini.LogError.Error(fmt.Sprintf("failed to shutdown server: %v", err))
-	}
+	//sigTERMChan := make(chan os.Signal, 1)
+	//signal.Notify(sigTERMChan, syscall.SIGTERM)
+	//
+	//<-sigTERMChan
+	//dratini.LogError.Info("shutdown server")
+	//timeout := time.Duration(conf.Core.ShutdownTimeout) * time.Second
+	//ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	//defer cancel()
+	//if err := server.Shutdown(ctx); err != nil {
+	//	dratini.LogError.Error(fmt.Sprintf("failed to shutdown server: %v", err))
+	//}
 
 	// Start a goroutine to log number of job queue.
 	go func() {
