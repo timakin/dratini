@@ -1,12 +1,7 @@
 package dratini
 
 import (
-	"net/http"
-	"net/url"
 	"runtime"
-	"strconv"
-	"sync/atomic"
-
 	"github.com/BurntSushi/toml"
 )
 
@@ -18,7 +13,6 @@ type ConfToml struct {
 }
 
 type SectionCore struct {
-	Port            string `toml:"port"`
 	WorkerNum       int64  `toml:"workers"`
 	QueueNum        int64  `toml:"queues"`
 	NotificationMax int64  `toml:"notification_max"`
@@ -61,7 +55,6 @@ func BuildDefaultConf() ConfToml {
 
 	var conf ConfToml
 	// Core
-	conf.Core.Port = "1056"
 	conf.Core.WorkerNum = int64(numCPU)
 	conf.Core.QueueNum = 8192
 	conf.Core.NotificationMax = 100
@@ -99,47 +92,4 @@ func LoadConf(confDratini ConfToml, confPath string) (ConfToml, error) {
 		return confDratini, err
 	}
 	return confDratini, nil
-}
-
-func ConfigPushersHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "PUT" {
-		sendResponse(w, "method must be PUT", http.StatusBadRequest)
-		return
-	}
-
-	values, err := url.ParseQuery(r.URL.RawQuery)
-	if err != nil {
-		LogError.Error(err.Error())
-		sendResponse(w, "url parameters could not be parsed", http.StatusBadRequest)
-		return
-	}
-
-	in := ""
-	for k, v := range values {
-		if k == "max" {
-			in = v[0]
-			break
-		}
-	}
-
-	if in == "" {
-		sendResponse(w, "malformed value", http.StatusBadRequest)
-		return
-	}
-
-	newPusherMax, err := strconv.ParseInt(in, 0, 64)
-	if err != nil {
-		LogError.Error(err.Error())
-		sendResponse(w, "malformed value", http.StatusBadRequest)
-		return
-	}
-
-	if newPusherMax < 0 {
-		sendResponse(w, "malformed value", http.StatusBadRequest)
-		return
-	}
-
-	atomic.StoreInt64(&ConfDratini.Core.PusherMax, newPusherMax)
-
-	sendResponse(w, "ok", http.StatusOK)
 }

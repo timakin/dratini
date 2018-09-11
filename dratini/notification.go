@@ -1,25 +1,20 @@
 package dratini
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"sync/atomic"
 	"time"
-
+	"os"
 	"github.com/timakin/dratini/gcm"
-
-	"go.uber.org/zap"
 )
 
-type RequestDratini struct {
-	Notifications []RequestDratiniNotification `json:"notifications"`
+type DratiniPush struct {
+	Notifications []DratiniPushNotification `json:"notifications"`
 }
 
-type RequestDratiniNotification struct {
+type DratiniPushNotification struct {
 	// Common
 	Tokens     []string `json:"token"`
 	Platform   int      `json:"platform"`
@@ -58,7 +53,8 @@ type CertificatePem struct {
 	Key  []byte
 }
 
-func enqueueNotifications(notifications []RequestDratiniNotification) {
+func enqueueNotifications(notifications []DratiniPushNotification) {
+	BootWg.Add(1)
 	for _, notification := range notifications {
 		err := validateNotification(&notification)
 		if err != nil {
@@ -85,9 +81,10 @@ func enqueueNotifications(notifications []RequestDratiniNotification) {
 			}
 		}
 	}
+	BootWg.Done()
 }
 
-func pushNotificationIos(req RequestDratiniNotification) error {
+func pushNotificationIos(req DratiniPushNotification) error {
 	LogError.Debug("START push notification for iOS")
 
 	service := NewApnsServiceHttp2(APNSClient)
@@ -117,7 +114,7 @@ func pushNotificationIos(req RequestDratiniNotification) error {
 	return nil
 }
 
-func pushNotificationAndroid(req RequestDratiniNotification) error {
+func pushNotificationAndroid(req DratiniPushNotification) error {
 	LogError.Debug("START push notification for Android")
 
 	data := map[string]interface{}{"message": req.Message}
@@ -159,8 +156,7 @@ func pushNotificationAndroid(req RequestDratiniNotification) error {
 	return nil
 }
 
-func validateNotification(notification *RequestDratiniNotification) error {
-
+func validateNotification(notification *DratiniPushNotification) error {
 	for _, token := range notification.Tokens {
 		if len(token) == 0 {
 			return errors.New("empty token")
@@ -178,80 +174,36 @@ func validateNotification(notification *RequestDratiniNotification) error {
 	return nil
 }
 
-func sendResponse(w http.ResponseWriter, msg string, code int) {
-	respDratini := ResponseDratini{
-		Message: msg,
-	}
-	buf := &bytes.Buffer{}
 
-	if err := json.NewEncoder(buf).Encode(respDratini); err != nil {
-		buf = bytes.NewBufferString("{\"message\":\"Response-body could not be created\"}")
-	}
+func StartBatch() {
+	LogError.Debug("push-batch started")
 
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.Header().Set("Server", serverHeader())
-
-	w.WriteHeader(code)
-
-	w.Write(buf.Bytes())
-}
-
-func PushNotificationHandler(w http.ResponseWriter, r *http.Request) {
-	LogAcceptedRequest(r)
-	LogError.Debug("push-request is Accepted")
-
-	LogError.Debug("method check")
-	if r.Method != "POST" {
-		sendResponse(w, "method must be POST", http.StatusBadRequest)
+	// file load
+	var dratiniPush DratiniPush
+	targetFile, err := os.Open(TargetFilePath)
+	if err != nil {
+		LogError.Error(err.Error())
 		return
 	}
 
-	LogError.Debug("content-length check")
-	if r.ContentLength == 0 {
-		sendResponse(w, "request body is empty", http.StatusBadRequest)
-		return
-	}
-
-	var (
-		reqDratini RequestDratini
-		err       error
-	)
-
-	if ConfDratini.Log.Level == "debug" {
-		reqBody, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			sendResponse(w, "failed to read request-body", http.StatusInternalServerError)
-			return
-		}
-		if m := LogError.Check(zap.DebugLevel, "parse request body"); m != nil {
-			m.Write(zap.String("body", string(reqBody)))
-		}
-		err = json.Unmarshal(reqBody, &reqDratini)
-	} else {
-		LogError.Debug("parse request body")
-		err = json.NewDecoder(r.Body).Decode(&reqDratini)
-	}
+	err = json.NewDecoder(targetFile).Decode(&dratiniPush)
 
 	if err != nil {
 		LogError.Error(err.Error())
-		sendResponse(w, "Request-body is malformed", http.StatusBadRequest)
 		return
 	}
 
-	if len(reqDratini.Notifications) == 0 {
+	if len(dratiniPush.Notifications) == 0 {
 		LogError.Error("empty notification")
-		sendResponse(w, "empty notification", http.StatusBadRequest)
 		return
-	} else if int64(len(reqDratini.Notifications)) > ConfDratini.Core.NotificationMax {
-		msg := fmt.Sprintf("number of notifications(%d) over limit(%d)", len(reqDratini.Notifications), ConfDratini.Core.NotificationMax)
+	} else if int64(len(dratiniPush.Notifications)) > ConfDratini.Core.NotificationMax {
+		msg := fmt.Sprintf("number of notifications(%d) over limit(%d)", len(dratiniPush.Notifications), ConfDratini.Core.NotificationMax)
 		LogError.Error(msg)
-		sendResponse(w, msg, http.StatusBadRequest)
 		return
 	}
 
 	LogError.Debug("enqueue notification")
-	go enqueueNotifications(reqDratini.Notifications)
+	enqueueNotifications(dratiniPush.Notifications)
 
-	LogError.Debug("response to client")
-	sendResponse(w, "ok", http.StatusOK)
+	LogError.Debug("push-batch finished")
 }

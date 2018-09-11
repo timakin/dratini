@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 	"sync/atomic"
 
 	"github.com/RobotsAndPencils/buford/push"
@@ -18,6 +19,11 @@ var (
 	//
 	// This is used to block main process to shutdown while pusher is still working.
 	PusherWg sync.WaitGroup
+	// PusherWg is global wait group for worker booting.
+	// It increments when job is triggered.
+	//
+	// This is used to block main process to shutdown while workers are not prepared.
+	BootWg sync.WaitGroup
 )
 
 func init() {
@@ -25,9 +31,11 @@ func init() {
 }
 
 func StartPushWorkers(workerNum, queueNum int64) {
-	QueueNotification = make(chan RequestDratiniNotification, queueNum)
+	QueueNotification = make(chan DratiniPushNotification, queueNum)
 	for i := int64(0); i < workerNum; i++ {
 		go pushNotificationWorker()
+		// Wait for worker booting
+		time.Sleep(time.Second)
 	}
 }
 
@@ -47,7 +55,7 @@ func isExternalServerError(err error, platform int) bool {
 	return false
 }
 
-func pushSync(pusher func(req RequestDratiniNotification) error, req RequestDratiniNotification, retryMax int) {
+func pushSync(pusher func(req DratiniPushNotification) error, req DratiniPushNotification, retryMax int) {
 	PusherWg.Add(1)
 	defer PusherWg.Done()
 Retry:
@@ -58,7 +66,7 @@ Retry:
 	}
 }
 
-func pushAsync(pusher func(req RequestDratiniNotification) error, req RequestDratiniNotification, retryMax int, pusherCount *int64) {
+func pushAsync(pusher func(req DratiniPushNotification) error, req DratiniPushNotification, retryMax int, pusherCount *int64) {
 	defer PusherWg.Done()
 Retry:
 	err := pusher(req)
@@ -74,7 +82,7 @@ Retry:
 func pushNotificationWorker() {
 	var (
 		retryMax    int
-		pusher      func(req RequestDratiniNotification) error
+		pusher      func(req DratiniPushNotification) error
 		pusherCount int64
 	)
 

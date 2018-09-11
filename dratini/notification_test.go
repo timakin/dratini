@@ -12,12 +12,12 @@ import (
 
 func TestValidateNotification(t *testing.T) {
 	cases := []struct {
-		Notification RequestDratiniNotification
+		Notification DratiniPushNotification
 		Expected     error
 	}{
 		// positive cases
 		{
-			RequestDratiniNotification{
+			DratiniPushNotification{
 				Tokens:   []string{"test token"},
 				Platform: 1,
 				Message:  "test message",
@@ -25,7 +25,7 @@ func TestValidateNotification(t *testing.T) {
 			nil,
 		},
 		{
-			RequestDratiniNotification{
+			DratiniPushNotification{
 				Tokens:   []string{"test token"},
 				Platform: 2,
 				Message:  "test message",
@@ -33,7 +33,7 @@ func TestValidateNotification(t *testing.T) {
 			nil,
 		},
 		{
-			RequestDratiniNotification{
+			DratiniPushNotification{
 				Tokens:     []string{"test token"},
 				Platform:   1,
 				Message:    "test message with identifier",
@@ -44,20 +44,20 @@ func TestValidateNotification(t *testing.T) {
 
 		// negative cases
 		{
-			RequestDratiniNotification{
+			DratiniPushNotification{
 				Tokens: []string{""},
 			},
 			errors.New("empty token"),
 		},
 		{
-			RequestDratiniNotification{
+			DratiniPushNotification{
 				Tokens:   []string{"test token"},
 				Platform: 100, /* neither iOS nor Android */
 			},
 			errors.New("invalid platform"),
 		},
 		{
-			RequestDratiniNotification{
+			DratiniPushNotification{
 				Tokens:   []string{"test token"},
 				Platform: 1,
 				Message:  "",

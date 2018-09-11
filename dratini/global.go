@@ -11,8 +11,10 @@ import (
 var (
 	// Toml configuration for Dratini
 	ConfDratini ConfToml
+	// File path for pusher targets
+	TargetFilePath string
 	// push notification Queue
-	QueueNotification chan RequestDratiniNotification
+	QueueNotification chan DratiniPushNotification
 	// TLS certificate and key for APNs
 	CertificatePemIos CertificatePem
 	// Stat for Dratini

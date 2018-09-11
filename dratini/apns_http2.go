@@ -99,7 +99,7 @@ func NewApnsServiceHttp2(client *http.Client) *push.Service {
 	}
 }
 
-func NewApnsPayloadHttp2(req *RequestDratiniNotification) map[string]interface{} {
+func NewApnsPayloadHttp2(req *DratiniPushNotification) map[string]interface{} {
 	p := payload.APS{
 		Alert:            payload.Alert{Title: req.Title, Body: req.Message, Subtitle: req.Subtitle},
 		Badge:            badge.New(uint(req.Badge)),
@@ -120,7 +120,7 @@ func NewApnsPayloadHttp2(req *RequestDratiniNotification) map[string]interface{}
 	return pm
 }
 
-func NewApnsHeadersHttp2(req *RequestDratiniNotification) *push.Headers {
+func NewApnsHeadersHttp2(req *DratiniPushNotification) *push.Headers {
 	headers := &push.Headers{
 		Topic: ConfDratini.Ios.Topic,
 	}

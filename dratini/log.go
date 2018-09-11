@@ -3,7 +3,6 @@ package dratini
 import (
 	"log"
 	"math"
-	"net/http"
 	"sync/atomic"
 	"time"
 
@@ -99,17 +98,7 @@ func LogSetupFatal(err error) {
 	log.Fatal(err)
 }
 
-func LogAcceptedRequest(r *http.Request) {
-	LogAccess.Info("",
-		zap.String("type", "accepted-request"),
-		zap.String("uri", r.URL.String()),
-		zap.String("method", r.Method),
-		zap.String("proto", r.Proto),
-		zap.Int64("content_length", r.ContentLength),
-	)
-}
-
-func LogPush(id uint64, status, token string, ptime float64, req RequestDratiniNotification, errPush error) {
+func LogPush(id uint64, status, token string, ptime float64, req DratiniPushNotification, errPush error) {
 	var plat string
 	switch req.Platform {
 	case PlatFormIos:

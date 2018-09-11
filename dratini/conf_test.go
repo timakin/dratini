@@ -31,7 +31,6 @@ func (suite *ConfigTestSuite) SetupTest() {
 
 func (suite *ConfigTestSuite) TestValidateConfDefault() {
 	// Core
-	assert.Equal(suite.T(), suite.ConfDratiniDefault.Core.Port, "1056")
 	assert.Equal(suite.T(), suite.ConfDratiniDefault.Core.WorkerNum, int64(runtime.NumCPU()))
 	assert.Equal(suite.T(), suite.ConfDratiniDefault.Core.QueueNum, int64(8192))
 	assert.Equal(suite.T(), suite.ConfDratiniDefault.Core.NotificationMax, int64(100))
@@ -63,7 +62,6 @@ func (suite *ConfigTestSuite) TestValidateConfDefault() {
 
 func (suite *ConfigTestSuite) TestValidateConf() {
 	// Core
-	assert.Equal(suite.T(), suite.ConfDratini.Core.Port, "1056")
 	assert.Equal(suite.T(), suite.ConfDratini.Core.WorkerNum, int64(8))
 	assert.Equal(suite.T(), suite.ConfDratini.Core.QueueNum, int64(8192))
 	assert.Equal(suite.T(), suite.ConfDratini.Core.NotificationMax, int64(100))

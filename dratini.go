@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"strconv"
+	"github.com/pkg/errors"
 	"syscall"
 	"github.com/timakin/dratini/dratini"
 )
@@ -17,17 +18,11 @@ const (
 )
 
 func main() {
-	versionPrinted := flag.Bool("v", false, "dratini version")
 	confPath := flag.String("c", "", "configuration file path for dratini")
-	listenPort := flag.String("p", "", "port number or unix socket path")
+	targetPath := flag.String("t", "", "configuration file path for dratini push target")
 	workerNum := flag.Int64("w", 0, "number of workers for push notification")
 	queueNum := flag.Int64("q", 0, "size of internal queue for push notification")
 	flag.Parse()
-
-	if *versionPrinted {
-		dratini.PrintVersion()
-		return
-	}
 
 	// set default parameters
 	dratini.ConfDratini = dratini.BuildDefaultConf()
@@ -39,10 +34,11 @@ func main() {
 	}
 	dratini.ConfDratini = conf
 
-	// overwrite if port is specified by flags
-	if *listenPort != "" {
-		dratini.ConfDratini.Core.Port = *listenPort
+	// exit if push target is not specified by flags
+	if *targetPath == "" {
+		dratini.LogSetupFatal(errors.New("targetPath is not specified"))
 	}
+	dratini.TargetFilePath = *targetPath
 
 	// overwrite if workerNum is specified by flags
 	if *workerNum > 0 {
@@ -125,52 +121,10 @@ func main() {
 	}
 	dratini.InitStat()
 	dratini.StartPushWorkers(dratini.ConfDratini.Core.WorkerNum, dratini.ConfDratini.Core.QueueNum)
+	dratini.StartBatch()
 
-	// Start PushJob
-	// <- job started
-
-	//mux := http.NewServeMux()
-	//dratini.RegisterHandlers(mux)
-
-	//server := &http.Server{
-	//	Handler: mux,
-	//}
-	//go func() {
-	//	dratini.LogError.Info("start server")
-	//	if err := dratini.RunServer(server, &dratini.ConfDratini); err != nil {
-	//		dratini.LogError.Info(fmt.Sprintf("failed to serve: %s", err))
-	//	}
-	//}()
-
-	// Graceful shutdown (kicked by SIGTERM).
-	//
-	// First, it shutdowns server and stops accepting new requests.
-	// Then wait until all remaining queues in buffer are flushed.
-	//sigTERMChan := make(chan os.Signal, 1)
-	//signal.Notify(sigTERMChan, syscall.SIGTERM)
-	//
-	//<-sigTERMChan
-	//dratini.LogError.Info("shutdown server")
-	//timeout := time.Duration(conf.Core.ShutdownTimeout) * time.Second
-	//ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	//defer cancel()
-	//if err := server.Shutdown(ctx); err != nil {
-	//	dratini.LogError.Error(fmt.Sprintf("failed to shutdown server: %v", err))
-	//}
-
-	// Start a goroutine to log number of job queue.
-	//go func() {
-	//	for {
-	//		queue := len(dratini.QueueNotification)
-	//		if queue == 0 {
-	//			break
-	//		}
-	//
-	//		dratini.LogError.Info(fmt.Sprintf("wait until queue is empty. Current queue len: %d", queue))
-	//		time.Sleep(1 * time.Second)
-	//	}
-	//}()
-
+	// Block until all job is kicked
+	dratini.BootWg.Wait()
 	// Block until all pusher worker job is done.
 	dratini.PusherWg.Wait()
 

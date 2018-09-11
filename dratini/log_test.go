@@ -18,7 +18,7 @@ func init() {
 }
 
 func BenchmarkLogPushIOSOmitempty(b *testing.B) {
-	req := RequestDratiniNotification{
+	req := DratiniPushNotification{
 		Platform: PlatFormIos,
 	}
 	errPush := fmt.Errorf("error")
@@ -28,7 +28,7 @@ func BenchmarkLogPushIOSOmitempty(b *testing.B) {
 }
 
 func BenchmarkLogPushIOSFull(b *testing.B) {
-	req := RequestDratiniNotification{
+	req := DratiniPushNotification{
 		Platform:         PlatFormIos,
 		Badge:            1,
 		Sound:            "foo",
