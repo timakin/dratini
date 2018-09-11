@@ -1,7 +1,7 @@
 Dratini
 ====
 
-<img src="https://media.giphy.com/media/BqFAVN5CFZ0dO/giphy.gif" alt="logo" align="right"/>
+<img src="https://github.com/timakin/dratini/blob/master/dratini.png" alt="logo" align="right"/>
 
 Dratini is a push notification handler works on a spot instance. Normally, push notification server is resident API, but, like daily notification job, most of time it stands by and costs meaninglessly.
 
