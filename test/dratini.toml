@@ -1,0 +1,29 @@
+[core]
+workers = 8
+queues = 8192
+notification_max = 100
+shutdown_timeout = 30
+
+[android]
+apikey = "apikey for GCM"
+enabled = true
+timeout = 5 # sec
+keepalive_timeout = 30
+keepalive_conns = 4
+retry_max = 1
+use_fcm = false
+
+[ios]
+pem_cert_path = "cert.pem"
+pem_key_path = "key.pem"
+sandbox = true
+enabled = true
+timeout = 5
+keepalive_timeout = 30
+keepalive_conns = 6
+retry_max = 1
+
+[log]
+access_log = "stdout"
+error_log = "stderr"
+level = "error"

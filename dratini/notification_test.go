@@ -2,9 +2,6 @@ package dratini
 
 import (
 	"errors"
-	"io/ioutil"
-	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -70,20 +67,4 @@ func TestValidateNotification(t *testing.T) {
 		actual := validateNotification(&c.Notification)
 		assert.Equal(t, actual, c.Expected)
 	}
-}
-
-func TestSendResponse(t *testing.T) {
-	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		sendResponse(w, "valid message", http.StatusOK)
-		return
-	}))
-	defer s.Close()
-
-	res, err := http.Get(s.URL)
-	assert.Nil(t, err)
-	assert.Equal(t, res.StatusCode, http.StatusOK)
-
-	body, err := ioutil.ReadAll(res.Body)
-	assert.Nil(t, err)
-	assert.Equal(t, string(body), "{\"message\":\"valid message\"}\n")
 }

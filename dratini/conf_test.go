@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	ConfDratiniPath = "../conf/dratini.toml"
+	ConfDratiniPath = "../test/dratini.toml"
 )
 
 type ConfigTestSuite struct {
