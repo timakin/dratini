@@ -1,12 +1,11 @@
 version: 2
 jobs:
   dratini:
-    working_directory: /go/src/github.com/timakin/dratini
+    working_directory: ~/github.com/timakin/dratini
     docker:
       - image: circleci/golang:1.11
     steps:
       - checkout
-      - run: go get -v -t -d ./...
       - run: go test -race
 workflows:
   version: 2
