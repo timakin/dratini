@@ -1,4 +1,4 @@
-Dratini
+Dratini [![CircleCI](https://circleci.com/gh/timakin/dratini.svg?style=svg)](https://circleci.com/gh/timakin/dratini)
 ====
 
 <img src="https://github.com/timakin/dratini/blob/master/dratini.png" alt="logo" align="right"/>
