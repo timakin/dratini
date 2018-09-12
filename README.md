@@ -17,11 +17,16 @@ This project uses [Go Modules](https://github.com/golang/go/wiki/Modules), so if
 
 # How to use
 
+To run dratini, you must provide configuration path via -c option (See [CONFIGURATION.md](/CONFIGURATION.md) about details), and path (or url) written notification request JSON via -t option (See [PUSH_REQUEST.md](/PUSH_REQUEST.md) about detail parameters).
+
 ```
 $ cd $GOPATH/src/github.com/timakin/dratini
 $ go build -o app
 $ app -c /path/to/config.toml -t /path/or/url/to/notifications.json
 ```
 
+## License
+
+Licensed under the MIT License.
 
 
