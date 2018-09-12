@@ -6,15 +6,10 @@ import (
 	"io/ioutil"
 	"os"
 	"os/signal"
-	"path/filepath"
-	"strconv"
-	"github.com/pkg/errors"
 	"syscall"
-	"github.com/timakin/dratini/dratini"
-)
 
-const (
-	DefaultPidPermission = 0644
+	"github.com/pkg/errors"
+	"github.com/timakin/dratini/dratini"
 )
 
 func main() {
@@ -99,14 +94,6 @@ func main() {
 	}
 
 	go signalHandler(sigHUPChan, sighupHandler)
-
-	if len(conf.Core.Pid) > 0 {
-		if _, err := os.Stat(filepath.Dir(conf.Core.Pid)); os.IsNotExist(err) {
-			dratini.LogSetupFatal(fmt.Errorf("directory for pid file is not exist: %v", err))
-		} else if err := ioutil.WriteFile(conf.Core.Pid, []byte(strconv.Itoa(os.Getpid())), DefaultPidPermission); err != nil {
-			dratini.LogSetupFatal(fmt.Errorf("failed to create a pid file: %v", err))
-		}
-	}
 
 	if dratini.ConfDratini.Android.Enabled {
 		if err := dratini.InitGCMClient(); err != nil {

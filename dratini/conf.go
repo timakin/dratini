@@ -2,6 +2,7 @@ package dratini
 
 import (
 	"runtime"
+
 	"github.com/BurntSushi/toml"
 )
 
@@ -13,12 +14,11 @@ type ConfToml struct {
 }
 
 type SectionCore struct {
-	WorkerNum       int64  `toml:"workers"`
-	QueueNum        int64  `toml:"queues"`
-	NotificationMax int64  `toml:"notification_max"`
-	PusherMax       int64  `toml:"pusher_max"`
-	ShutdownTimeout int64  `toml:"shutdown_timeout"`
-	Pid             string `toml:"pid"`
+	WorkerNum       int64 `toml:"workers"`
+	QueueNum        int64 `toml:"queues"`
+	NotificationMax int64 `toml:"notification_max"`
+	PusherMax       int64 `toml:"pusher_max"`
+	ShutdownTimeout int64 `toml:"shutdown_timeout"`
 }
 
 type SectionAndroid struct {
@@ -60,7 +60,6 @@ func BuildDefaultConf() ConfToml {
 	conf.Core.NotificationMax = 100
 	conf.Core.PusherMax = 0
 	conf.Core.ShutdownTimeout = 10
-	conf.Core.Pid = ""
 	// Android
 	conf.Android.ApiKey = ""
 	conf.Android.Enabled = true
@@ -68,7 +67,7 @@ func BuildDefaultConf() ConfToml {
 	conf.Android.KeepAliveTimeout = 90
 	conf.Android.KeepAliveConns = numCPU
 	conf.Android.RetryMax = 1
-	conf.Android.UseFCM = false
+	conf.Android.UseFCM = true
 	// iOS
 	conf.Ios.Enabled = true
 	conf.Ios.PemCertPath = ""

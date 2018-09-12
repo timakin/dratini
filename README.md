@@ -7,7 +7,21 @@ Dratini is a push notification handler works on a spot instance. Normally, push 
 
 You can reduce the cost if the handler works only at the moment. Dratini cannot serve request like normal push notification handler. However, it will send bulk push notifications in parallel with background workers based on goroutine.
 
-# Dependency
+# Installation
+
+```
+go get -u github.com/timakin/dratini
+```
+
+This project uses [Go Modules](https://github.com/golang/go/wiki/Modules), so if you've already installed Go (>= 1.11) and enables the flag `GO111MODULE=on`, you can automatically install the dependencies.
+
+# How to use
+
+```
+$ cd $GOPATH/src/github.com/timakin/dratini
+$ go build -o app
+$ app -c /path/to/config.toml -t /path/or/url/to/notifications.json
+```
 
 
 

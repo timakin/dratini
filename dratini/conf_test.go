@@ -35,7 +35,6 @@ func (suite *ConfigTestSuite) TestValidateConfDefault() {
 	assert.Equal(suite.T(), suite.ConfDratiniDefault.Core.QueueNum, int64(8192))
 	assert.Equal(suite.T(), suite.ConfDratiniDefault.Core.NotificationMax, int64(100))
 	assert.Equal(suite.T(), suite.ConfDratiniDefault.Core.PusherMax, int64(0))
-	assert.Equal(suite.T(), suite.ConfDratiniDefault.Core.Pid, "")
 	// Android
 	assert.Equal(suite.T(), suite.ConfDratiniDefault.Android.Enabled, true)
 	assert.Equal(suite.T(), suite.ConfDratiniDefault.Android.ApiKey, "")
@@ -66,7 +65,6 @@ func (suite *ConfigTestSuite) TestValidateConf() {
 	assert.Equal(suite.T(), suite.ConfDratini.Core.QueueNum, int64(8192))
 	assert.Equal(suite.T(), suite.ConfDratini.Core.NotificationMax, int64(100))
 	assert.Equal(suite.T(), suite.ConfDratini.Core.PusherMax, int64(0))
-	assert.Equal(suite.T(), suite.ConfDratini.Core.Pid, "")
 	// Android
 	assert.Equal(suite.T(), suite.ConfDratini.Android.Enabled, true)
 	assert.Equal(suite.T(), suite.ConfDratini.Android.ApiKey, "apikey for GCM")

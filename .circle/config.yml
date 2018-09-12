@@ -1,0 +1,16 @@
+# Golang CircleCI 2.0 configuration file
+version: 2
+jobs:
+  dratini:
+    docker:
+      - image: circleci/golang:1.11
+      working_directory: /go/src/github.com/timakin/dratini
+    steps:
+      - checkout
+      - run: go get -v -t -d ./...
+      - run: go test -race
+workflows:
+  version: 2
+  build_and_test:
+  jobs:
+    - dratini
