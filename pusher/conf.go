@@ -1,4 +1,4 @@
-package dratini
+package pusher
 
 import (
 	"runtime"

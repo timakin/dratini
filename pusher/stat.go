@@ -1,4 +1,4 @@
-package dratini
+package pusher
 
 type StatApp struct {
 	QueueMax    int         `json:"queue_max"`

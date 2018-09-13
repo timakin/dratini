@@ -1,4 +1,4 @@
-package dratini
+package pusher
 
 import (
 	"runtime"
@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	ConfDratiniPath = "../test/dratini.toml"
+	ConfDratiniPath = "../test/pusher.toml"
 )
 
 type ConfigTestSuite struct {

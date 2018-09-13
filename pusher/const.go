@@ -1,4 +1,4 @@
-package dratini
+package pusher
 
 const (
 	Version = "0.9.1"
