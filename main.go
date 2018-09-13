@@ -1,4 +1,4 @@
-package dratini
+package main
 
 import (
 	"flag"
